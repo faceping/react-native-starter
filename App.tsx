@@ -2,7 +2,7 @@ import {
   FaceCamera,
   FacePing,
   isFacePingError,
-  type EnrolOutcome,
+  type EnrollOutcome,
   type FaceCameraRef,
   type VerifyOutcome,
 } from '@faceping/react-native';
@@ -23,7 +23,7 @@ type Tone = 'ink' | 'green' | 'red';
 export default function App() {
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle="dark-content" backgroundColor={colours.white} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
       <FaceCheck />
     </SafeAreaProvider>
   );
@@ -36,7 +36,7 @@ function FaceCheck() {
   const [tone, setTone] = useState<Tone>('ink');
   const [enrolled, setEnrolled] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [canEnrol, setCanEnrol] = useState(true);
+  const [canEnroll, setCanEnroll] = useState(true);
   const [offline, setOffline] = useState(false);
   const offlineRef = useRef(false);
 
@@ -65,7 +65,7 @@ function FaceCheck() {
         await FacePing.init({ sandboxKey: SANDBOX_KEY });
       } catch (error) {
         show('Sandbox key problem', messageOf(error), 'red');
-        setCanEnrol(false);
+        setCanEnroll(false);
         return;
       }
       try {
@@ -94,12 +94,12 @@ function FaceCheck() {
     [busy, show]
   );
 
-  const onEnrol = () =>
+  const onEnroll = () =>
     run(async () => {
       show('Hold still', 'Taking the photo…', 'ink');
       await camera.current?.setGuideState('working');
-      // Takes a still from the camera and enrols it on the phone.
-      const result = await FacePing.enrol(ID, camera);
+      // Takes a still from the camera and stores the face on the phone.
+      const result = await FacePing.enroll(ID, camera);
       await camera.current?.setGuideState('ready');
       if (result.isEnrolled) {
         setEnrolled(true);
@@ -126,7 +126,7 @@ function FaceCheck() {
       }
     });
 
-  const enrolDisabled = busy || !canEnrol;
+  const enrollDisabled = busy || !canEnroll;
   const verifyDisabled = busy || !enrolled;
 
   return (
@@ -147,15 +147,15 @@ function FaceCheck() {
           onCameraFailed={({ message }) => show('Camera unavailable', message, 'ink')}
         />
         <View style={styles.resultCard} accessible accessibilityLiveRegion="polite">
-          <Text style={[styles.resultTitle, { color: toneColours[tone] }]}>{title}</Text>
+          <Text style={[styles.resultTitle, { color: toneColors[tone] }]}>{title}</Text>
           <Text style={styles.resultNote}>{note}</Text>
         </View>
       </View>
 
       <Pressable
-        onPress={onEnrol}
-        disabled={enrolDisabled}
-        style={[styles.button, styles.buttonOutline, enrolDisabled && styles.faded]}
+        onPress={onEnroll}
+        disabled={enrollDisabled}
+        style={[styles.button, styles.buttonOutline, enrollDisabled && styles.faded]}
         accessibilityRole="button">
         <Text style={styles.buttonOutlineText}>{enrolled ? 'Enrol again' : 'Enrol my face'}</Text>
       </Pressable>
@@ -210,7 +210,7 @@ function titleFor(outcome: VerifyOutcome): string {
   }
 }
 
-function describe(outcome: EnrolOutcome): string {
+function describe(outcome: EnrollOutcome): string {
   switch (outcome) {
     case 'noFace':
       return 'No face seen. Look at the camera.';
@@ -229,7 +229,7 @@ function describe(outcome: EnrolOutcome): string {
   }
 }
 
-const colours = {
+const colors = {
   white: '#FFFFFF',
   ink: '#0F172A',
   slate: '#475569',
@@ -243,16 +243,16 @@ const colours = {
   cameraBackground: '#0B1220',
 };
 
-const toneColours: Record<Tone, string> = {
-  ink: colours.ink,
-  green: colours.green,
-  red: colours.red,
+const toneColors: Record<Tone, string> = {
+  ink: colors.ink,
+  green: colors.green,
+  red: colors.red,
 };
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colours.white,
+    backgroundColor: colors.white,
     paddingHorizontal: 18,
     paddingTop: 10,
     paddingBottom: 12,
@@ -263,24 +263,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     paddingTop: 6,
   },
-  appName: { flex: 1, fontSize: 22, fontWeight: '700', color: colours.ink },
+  appName: { flex: 1, fontSize: 22, fontWeight: '700', color: colors.ink },
   pill: {
     fontSize: 13,
     fontWeight: '700',
-    color: colours.slate,
-    backgroundColor: colours.pill,
+    color: colors.slate,
+    backgroundColor: colors.pill,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
     overflow: 'hidden',
   },
-  pillOffline: { color: colours.amber, backgroundColor: colours.pillOffline },
+  pillOffline: { color: colors.amber, backgroundColor: colors.pillOffline },
   cameraCard: {
     flex: 1,
     marginVertical: 12,
     borderRadius: 18,
     overflow: 'hidden',
-    backgroundColor: colours.cameraBackground,
+    backgroundColor: colors.cameraBackground,
     justifyContent: 'flex-end',
   },
   resultCard: {
@@ -291,16 +291,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.96)',
   },
   resultTitle: { fontSize: 17, fontWeight: '700' },
-  resultNote: { marginTop: 2, fontSize: 14, color: colours.slate },
+  resultNote: { marginTop: 2, fontSize: 14, color: colors.slate },
   button: {
     height: 50,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonOutline: { backgroundColor: colours.white, borderWidth: 1, borderColor: colours.outline },
-  buttonOutlineText: { fontSize: 16, fontWeight: '700', color: colours.ink },
-  buttonPrimary: { marginTop: 10, backgroundColor: colours.brand },
-  buttonPrimaryText: { fontSize: 16, fontWeight: '700', color: colours.white },
+  buttonOutline: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.outline },
+  buttonOutlineText: { fontSize: 16, fontWeight: '700', color: colors.ink },
+  buttonPrimary: { marginTop: 10, backgroundColor: colors.brand },
+  buttonPrimaryText: { fontSize: 16, fontWeight: '700', color: colors.white },
   faded: { opacity: 0.45 },
 });
