@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "FaceCheck",
+    "slug": "facecheck",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.example.facecheck.reactnative",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.example.facecheck.reactnative",
+      "allowBackup": false,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      [
+        "@faceping/react-native",
+        {
+          "cameraPermission": "FaceCheck uses the front camera to check it's you. In the sandbox your face stays on this phone."
+        }
+      ]
+    ]
+  }
+}
