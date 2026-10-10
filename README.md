@@ -6,7 +6,7 @@ It's the finished app from the [React Native quickstart](https://docs.faceping.a
 
 ## Run it
 
-You need Node 20 or later, and a phone with a cable: an Android phone (Android 7 or later, 64-bit) with USB debugging on and the Android SDK (JDK 17 or later), or an iPhone (iOS 15.1 or later) and a Mac with Xcode 26 or later. Emulators and the simulator have no real front camera. FacePing has native code, so it runs in a development build, not in Expo Go.
+You need Node 20 or later, and a phone with a cable: an Android phone (Android 7 or later, 64-bit) with USB debugging on, the Android SDK and JDK 17 (both come with [Android Studio](https://developer.android.com/studio)), or an iPhone (iOS 15.1 or later) and a Mac with Xcode 26 or later. Emulators and the simulator have no real front camera. FacePing has native code, so it runs in a development build, not in Expo Go.
 
 1. **Get a free sandbox key** at [app.faceping.ai/signup](https://app.faceping.ai/signup) (no card, no approval). In the dashboard: **Developers → Sandbox keys → Create sandbox key**. It starts with `fp_test_`.
 2. **Paste it** into a new file `.env.local` (copy `.env.example`), replacing `fp_test_…`. The file is ignored by git, so your key stays out of commits:
