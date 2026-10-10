@@ -35,7 +35,7 @@ Before you build your own app from this, change the bundle id and package `com.e
 | `.env.local` | Your sandbox key (see `.env.example`). Expo reads it when it bundles the app. |
 | `App.tsx` | `FacePing.init` with your key, the `<FaceCamera>`, `enrol` and `verifyLive`, and what each result means. |
 | `app.json` | The app's name and ids, and the FacePing config plugin: the camera prompt on iOS (`NSCameraUsageDescription`) and the two Android ABIs FacePing runs on. |
-| `package.json` | The FacePing dependency (`@faceping/react-native` `1.0.0-preview.1`). |
+| `package.json` | The FacePing dependency (`@faceping/react-native` `1.0.0-preview.2`). |
 
 ## The sandbox
 
