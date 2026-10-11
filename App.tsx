@@ -4,6 +4,7 @@ import {
   isFacePingError,
   type EnrollOutcome,
   type FaceCameraRef,
+  type SyncResult,
   type VerifyOutcome,
 } from '@faceping/react-native';
 import NetInfo from '@react-native-community/netinfo';
@@ -15,11 +16,20 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 // EXPO_PUBLIC_FACEPING_SANDBOX_KEY=fp_test_... (see .env.example), or replace the placeholder here.
 const SANDBOX_KEY = process.env.EXPO_PUBLIC_FACEPING_SANDBOX_KEY || 'fp_test_…';
 
-const ID = 'me';
+// To run as a check-in device for your practice list instead, set EXPO_PUBLIC_FACEPING_DEVICE_TOKEN=fpd_... (from the
+// list's Devices tab) and EXPO_PUBLIC_FACEPING_PERSON_ID to the person you enrolled on the list. A token wins over the key.
+const DEVICE_TOKEN = process.env.EXPO_PUBLIC_FACEPING_DEVICE_TOKEN || '';
+const DEVICE_MODE = DEVICE_TOKEN.length > 0;
+
+// Who this app verifies: "me" in the sandbox; on a check-in device, the personId you enrolled on the list.
+const ID = process.env.EXPO_PUBLIC_FACEPING_PERSON_ID || 'me';
 
 type Tone = 'ink' | 'green' | 'red';
 
-/** The same screen as the MAUI, Android and iOS FaceCheck: enrol your face, then verify it live, with or without a network. */
+/**
+ * The same screen as the other FaceCheck starters: enrol your face, then verify it live, with or without a network. As a
+ * check-in device, it gets its people from your practice list instead, and only verifies.
+ */
 export default function App() {
   return (
     <SafeAreaProvider>
@@ -32,7 +42,7 @@ export default function App() {
 function FaceCheck() {
   const camera = useRef<FaceCameraRef>(null);
   const [title, setTitle] = useState('Look at the camera');
-  const [note, setNote] = useState('Tap Enrol my face to start.');
+  const [note, setNote] = useState(DEVICE_MODE ? 'Syncing the list…' : 'Tap Enrol my face to start.');
   const [tone, setTone] = useState<Tone>('ink');
   const [enrolled, setEnrolled] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -58,22 +68,24 @@ function FaceCheck() {
   );
 
   // Turn FacePing on, then sync: activates the sandbox key on the first run, and a face enrolled earlier may still be
-  // on the phone (sandbox faces are deleted 24 hours after enrolment).
+  // on the phone (sandbox faces are deleted 24 hours after enrolment). On a check-in device, sync downloads the list.
   useEffect(() => {
     (async () => {
       try {
-        await FacePing.init({ sandboxKey: SANDBOX_KEY });
+        await FacePing.init(DEVICE_MODE ? { deviceToken: DEVICE_TOKEN } : { sandboxKey: SANDBOX_KEY });
       } catch (error) {
-        show('Sandbox key problem', messageOf(error), 'red');
+        show(DEVICE_MODE ? 'Device token problem' : 'Sandbox key problem', messageOf(error), 'red');
         setCanEnroll(false);
         return;
       }
       try {
-        await FacePing.sync();
+        const sync = await FacePing.sync();
+        const here = (await FacePing.enrolledIds().catch((): string[] => [])).includes(ID);
+        setEnrolled(here);
+        if (DEVICE_MODE) showSync(sync, here, show);
       } catch (error) {
         showError(error, show);
       }
-      setEnrolled((await FacePing.enrolledIds().catch((): string[] => [])).includes(ID));
     })();
   }, [show]);
 
@@ -126,7 +138,7 @@ function FaceCheck() {
       }
     });
 
-  const enrollDisabled = busy || !canEnroll;
+  const enrollDisabled = busy || !canEnroll || DEVICE_MODE;
   const verifyDisabled = busy || !enrolled;
 
   return (
@@ -152,13 +164,16 @@ function FaceCheck() {
         </View>
       </View>
 
-      <Pressable
-        onPress={onEnroll}
-        disabled={enrollDisabled}
-        style={[styles.button, styles.buttonOutline, enrollDisabled && styles.faded]}
-        accessibilityRole="button">
-        <Text style={styles.buttonOutlineText}>{enrolled ? 'Enrol again' : 'Enrol my face'}</Text>
-      </Pressable>
+      {/* A check-in device gets its people from the server: no enrolling here. */}
+      {!DEVICE_MODE && (
+        <Pressable
+          onPress={onEnroll}
+          disabled={enrollDisabled}
+          style={[styles.button, styles.buttonOutline, enrollDisabled && styles.faded]}
+          accessibilityRole="button">
+          <Text style={styles.buttonOutlineText}>{enrolled ? 'Enrol again' : 'Enrol my face'}</Text>
+        </Pressable>
+      )}
       <Pressable
         onPress={onVerify}
         disabled={verifyDisabled}
@@ -170,10 +185,31 @@ function FaceCheck() {
   );
 }
 
+/** On a check-in device: say what the sync found. */
+function showSync(sync: SyncResult, here: boolean, show: (t: string, n: string, c: Tone) => void) {
+  switch (sync.status) {
+    case 'revoked':
+      show('Device token not valid', 'It was revoked or mistyped, or its list was deleted. Add the device again and use the new token.', 'red');
+      break;
+    case 'gone':
+      show('List finished', "This list's faces have been deleted, so there's no one to check.", 'ink');
+      break;
+    case 'unavailable':
+      show("Couldn't sync", 'No connection to FacePing. The people synced before still work until the lease runs out.', 'ink');
+      break;
+    default:
+      show(
+        `${sync.enrolled} people synced`,
+        here ? `${ID} is here: tap Verify.` : `${ID} isn't on this list yet. Enrol them on your server, then reopen the app.`,
+        'ink'
+      );
+  }
+}
+
 function showError(error: unknown, show: (t: string, n: string, c: Tone) => void) {
   if (isFacePingError(error, 'setup')) {
     // The sandbox key is missing or revoked, or the very first run had no connection.
-    show('Sandbox key problem', error.message, 'red');
+    show(DEVICE_MODE ? 'Device token problem' : 'Sandbox key problem', error.message, 'red');
   } else if (isFacePingError(error, 'model')) {
     // The face models couldn't load on this phone: send people to your normal way in.
     show('Face check unavailable', error.message, 'red');

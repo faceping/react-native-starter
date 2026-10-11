@@ -8,13 +8,13 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.example.facecheck.reactnative",
+      "bundleIdentifier": "com.yourcompany.facecheck",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.example.facecheck.reactnative",
+      "package": "com.yourcompany.facecheck",
       "allowBackup": false,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
