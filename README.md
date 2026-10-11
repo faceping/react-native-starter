@@ -52,7 +52,7 @@ Once you've tried the server side with your sandbox key (a practice check-in lis
 | `.env.local` | Your sandbox key, or a device token and person id (see `.env.example`). Expo reads it when it bundles the app. |
 | `App.tsx` | `FacePing.init` with your key or device token, the `<FaceCamera>`, `enroll` and `verifyLive`, what each result means, and what each sync found on a check-in device. |
 | `app.json` | The app's name and ids, and the FacePing config plugin: the camera prompt on iOS (`NSCameraUsageDescription`), the two Android ABIs FacePing runs on, and Android backup rules that keep FacePing's data on the phone. |
-| `package.json` | The FacePing dependency (`@faceping/react-native` `1.0.0-preview.3`). |
+| `package.json` | The FacePing dependency (`@faceping/react-native` `1.0.0-preview.4`). |
 
 ## The sandbox
 
