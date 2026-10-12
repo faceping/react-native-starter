@@ -70,6 +70,13 @@ function FaceCheck() {
   // Turn FacePing on, then sync: activates the sandbox key on the first run, and a face enrolled earlier may still be
   // on the phone (sandbox faces are deleted 24 hours after enrolment). On a check-in device, sync downloads the list.
   useEffect(() => {
+    // On a check-in device, every sync (including the automatic ones, every 5 minutes) updates the screen.
+    const onSync = async (sync: SyncResult) => {
+      const here = (await FacePing.enrolledIds().catch((): string[] => [])).includes(ID);
+      setEnrolled(here);
+      showSync(sync, here, show);
+    };
+    const subscription = DEVICE_MODE ? FacePing.addListener('synced', onSync) : null;
     (async () => {
       try {
         await FacePing.init(DEVICE_MODE ? { deviceToken: DEVICE_TOKEN } : { sandboxKey: SANDBOX_KEY });
@@ -80,13 +87,17 @@ function FaceCheck() {
       }
       try {
         const sync = await FacePing.sync();
-        const here = (await FacePing.enrolledIds().catch((): string[] => [])).includes(ID);
-        setEnrolled(here);
-        if (DEVICE_MODE) showSync(sync, here, show);
+        if (DEVICE_MODE) {
+          // Shown here too, in case this first sync finished before the listener heard it.
+          await onSync(sync);
+        } else {
+          setEnrolled((await FacePing.enrolledIds().catch((): string[] => [])).includes(ID));
+        }
       } catch (error) {
         showError(error, show);
       }
     })();
+    return () => subscription?.remove();
   }, [show]);
 
   const run = useCallback(
@@ -200,7 +211,7 @@ function showSync(sync: SyncResult, here: boolean, show: (t: string, n: string, 
     default:
       show(
         `${sync.enrolled} people synced`,
-        here ? `${ID} is here: tap Verify.` : `${ID} isn't on this list yet. Enrol them on your server, then reopen the app.`,
+        here ? `${ID} is here: tap Verify.` : `${ID} isn't on this list yet. Enrol them, and they appear here at the next sync.`,
         'ink'
       );
   }

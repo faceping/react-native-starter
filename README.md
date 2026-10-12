@@ -6,7 +6,7 @@ It's a fuller version of the app you build in [Get started with React Native](ht
 
 ## Run it
 
-You need Node 20.19.4 or later, and a phone with a cable: an Android phone (Android 7 or later, 64-bit) with USB debugging on, the Android SDK and JDK 17 (both come with [Android Studio](https://developer.android.com/studio)), or an iPhone (iOS 16.4 or later: Expo SDK 57's minimum; the FacePing SDK itself needs 15.1) and a Mac with Xcode 26 or later. Emulators and the simulator have no real front camera. FacePing has native code, so it runs in a development build, not in Expo Go.
+You need Node 20.19.4 or later, and a phone with a cable: an Android phone (Android 7 or later, 64-bit) with USB debugging on, the Android SDK and JDK 17 or later (both come with [Android Studio](https://developer.android.com/studio)), or an iPhone (iOS 16.4 or later: Expo SDK 57's minimum; the FacePing SDK itself needs 15.1) and a Mac with Xcode 26 or later. Emulators and the simulator have no real front camera. FacePing has native code, so it runs in a development build, not in Expo Go.
 
 1. **Get a free sandbox key** at [app.faceping.ai/signup](https://app.faceping.ai/signup) (no card, no approval). In the dashboard: **Developers → Sandbox keys → Create sandbox key**. It starts with `fp_test_`.
 2. **Paste it** into a new file `.env.local` (copy `.env.example`), replacing `fp_test_…`. The file is ignored by git, so your key stays out of commits:
@@ -41,9 +41,16 @@ Once you've tried the server side with your sandbox key (a practice check-in lis
    EXPO_PUBLIC_FACEPING_PERSON_ID=ACME-000123
    ```
 
-   With a device token set, the sandbox key is ignored. To keep the sandbox app on the phone as well, also change the bundle id and package in `app.json` (for example to `com.yourcompany.facecheck.device`) and the app's `name`.
+   With a device token set, the sandbox key is ignored, and `app.config.ts` adds `.device` to the bundle id and package and names the app **FaceCheck Device**, so it installs next to the sandbox app instead of replacing it.
 
-4. Run it again (`npx expo run:android --device`, or `run:ios`). The app syncs the list when it starts and shows what it found: how many people synced and whether your person is there, or why not (a revoked or mistyped token, a deleted list, no connection). **Enrol my face** is hidden: people enrol on the server. Tap **Verify** once your person is here.
+4. Recreate the native folders so they pick up the new ids, then run it again:
+
+   ```bash
+   npx expo prebuild --clean
+   npx expo run:android --device      # or: npx expo run:ios --device
+   ```
+
+   `expo run` only creates the `android` and `ios` folders when they're missing, so without `prebuild --clean` the app keeps its old ids and replaces the sandbox app. Do the same when you switch back. The app syncs the list when it starts and shows what it found: how many people synced and whether your person is there, or why not (a revoked or mistyped token, a deleted list, no connection). **Enrol my face** is hidden: people enrol on the server. Tap **Verify** once your person is here.
 
 ## What's where
 
@@ -52,6 +59,7 @@ Once you've tried the server side with your sandbox key (a practice check-in lis
 | `.env.local` | Your sandbox key, or a device token and person id (see `.env.example`). Expo reads it when it bundles the app. |
 | `App.tsx` | `FacePing.init` with your key or device token, the `<FaceCamera>`, `enroll` and `verifyLive`, what each result means, and what each sync found on a check-in device. |
 | `app.json` | The app's name and ids, and the FacePing config plugin: the camera prompt on iOS (`NSCameraUsageDescription`), the two Android ABIs FacePing runs on, and Android backup rules that keep FacePing's data on the phone. |
+| `app.config.ts` | Adds `.device` to the ids and names the app FaceCheck Device when a device token is set. |
 | `package.json` | The FacePing dependency (`@faceping/react-native` `1.0.0-preview.4`). |
 
 ## The sandbox
