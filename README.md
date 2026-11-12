@@ -52,6 +52,8 @@ Once you've tried the server side with your sandbox key (a practice check-in lis
 
    `expo run` only creates the `android` and `ios` folders when they're missing, so without `prebuild --clean` the app keeps its old ids and replaces the sandbox app. Do the same when you switch back. The app syncs the list when it starts and shows what it found: how many people synced and whether your person is there, or why not (a revoked or mistyped token, a deleted list, no connection). **Enrol my face** is hidden: people enrol on the server. Tap **Verify** once your person is here.
 
+If your server needs proof that a check really happened, see [Signed check results](https://docs.faceping.ai/signed-results/).
+
 ## What's where
 
 | File | What it does |
@@ -60,7 +62,7 @@ Once you've tried the server side with your sandbox key (a practice check-in lis
 | `App.tsx` | `FacePing.init` with your key or device token, the `<FaceCamera>`, `enroll` and `verifyLive`, what each result means, and what each sync found on a check-in device. |
 | `app.json` | The app's name and ids, and the FacePing config plugin: the camera prompt on iOS (`NSCameraUsageDescription`), the two Android ABIs FacePing runs on, and Android backup rules that keep FacePing's data on the phone. |
 | `app.config.ts` | Adds `.device` to the ids and names the app FaceCheck Device when a device token is set. |
-| `package.json` | The FacePing dependency (`@faceping/react-native` `1.0.0-preview.4`). |
+| `package.json` | The FacePing dependency (`@faceping/react-native` `1.0.0-preview.6`). |
 
 ## The sandbox
 
